@@ -1,0 +1,35 @@
+name: Add Gradle Wrapper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add-wrapper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java (برای Gradle)
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: Generate Gradle Wrapper
+        run: |
+          # اگر gradlew وجود ندارد، آن را ایجاد می‌کنیم
+          if [ ! -f "./gradlew" ]; then
+            # دستور Gradle برای ایجاد Wrapper
+            gradle wrapper --gradle-version 7.4.2
+          fi
+
+      - name: Commit and Push Gradle Wrapper
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add gradlew gradlew.bat gradle/wrapper/gradle-wrapper.properties gradle/wrapper/gradle-wrapper.jar
+          git commit -m "Add Gradle Wrapper via GitHub Action" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
